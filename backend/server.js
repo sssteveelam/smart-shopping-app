@@ -1,0 +1,34 @@
+// File: backend/server.js
+
+// 1. Import các thư viện cần thiết
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
+// 2. Load các biến môi trường từ file .env
+dotenv.config();
+
+// 3. Lấy chuỗi kết nối MongoDB từ biến môi trường
+const mongoURI = process.env.MONGO_URI;
+
+// 4. Kiểm tra xem chuỗi kết nối có tồn tại không
+if (!mongoURI) {
+  console.error("FATAL ERROR: MONGO_URI is not defined in .env file.");
+  // Dừng ứng dụng nếu không có chuỗi kết nối
+  process.exit(1);
+}
+
+// 5. Kết nối đến MongoDB sử dụng Mongoose
+// 5. Kết nối đến MongoDB sử dụng Mongoose
+mongoose
+  .connect(mongoURI)
+  .then(() => console.log("Connected to MongoDB Atlas!")) // Nếu kết nối thành công
+  .catch((err) => console.error("Could not connect to MongoDB Atlas...", err)); // Nếu kết nối thất bại
+
+// 6. Khởi tạo ứng dụng Express (tạm thời để test)
+const app = express();
+
+// (Sau này mình sẽ thêm các API endpoint ở đây)
+
+const port = process.env.PORT || 5000; // Cổng cho backend, lấy từ .env hoặc dùng 5000
+app.listen(port, () => console.log(`Server is running on port ${port}`));
