@@ -5,6 +5,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
+// *** Import router cho món ăn ***
+const dishRoutes = require("./routes/dishes");
+
 // 2. Load các biến môi trường từ file .env
 dotenv.config();
 
@@ -28,7 +31,13 @@ mongoose
 // 6. Khởi tạo ứng dụng Express (tạm thời để test)
 const app = express();
 
-// (Sau này mình sẽ thêm các API endpoint ở đây)
+// *** Middleware ***
+// app.use(express.json()) giúp Express đọc được dữ liệu JSON mà frontend gửi lên trong request body
+app.use(express.json());
+
+// *** Gắn (mount) router cho món ăn vào đường dẫn /api/dishes ***
+// Mọi request đến /api/dishes và các đường dẫn con của nó sẽ được xử lý bởi dishRoutes
+app.use("/api/dishes", dishRoutes);
 
 const port = process.env.PORT || 5000; // Cổng cho backend, lấy từ .env hoặc dùng 5000
 app.listen(port, () => console.log(`Server is running on port ${port}`));
