@@ -32,6 +32,8 @@ function App() {
 
   return (
     <div className="App">
+      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+      <br />
       <h1>Trợ lý Đi chợ Thông minh</h1>
       {/* Truyền hàm fetchDishes xuống DishForm để gọi sau khi thêm món thành công */}
       <DishForm onDishAdded={fetchDishes} />
