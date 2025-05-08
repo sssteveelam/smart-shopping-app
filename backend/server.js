@@ -4,6 +4,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+var cors = require("cors");
 
 // *** Import router cho món ăn ***
 const dishRoutes = require("./routes/dishes");
@@ -35,6 +36,7 @@ const app = express();
 // *** Middleware ***
 // app.use(express.json()) giúp Express đọc được dữ liệu JSON mà frontend gửi lên trong request body
 app.use(express.json());
+app.use(cors());
 
 // *** Gắn (mount) router cho món ăn vào đường dẫn /api/dishes ***
 // Mọi request đến /api/dishes và các đường dẫn con của nó sẽ được xử lý bởi dishRoutes

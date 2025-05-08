@@ -92,7 +92,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
 // @route   PUT /api/dishes/:id
 // @desc    Update a dish by ID
 // @access  Public
@@ -100,7 +99,7 @@ router.put("/:id", async (req, res) => {
   try {
     // Lấy ID và dữ liệu cập nhật từ request
     const dishId = req.params.id;
-    const { name, ingredients } = req.body; 
+    const { name, ingredients } = req.body;
     // Kiểm tra dữ liệu cập nhật cơ bản.
     if (
       !name ||
