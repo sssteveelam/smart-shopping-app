@@ -99,4 +99,65 @@ router.post("/", async (req, res) => {
   }
 });
 
+// @route   GET /api/weekly-menus/latest
+// @desc    Get the latest weekly menu
+// @access  Public
+router.get("/latest", async (req, res) => {
+  try {
+    // 1. Tìm thực đơn gần nhất
+    // findOne(): tìm một document
+    // sort({ createdAt: -1 }): sắp xếp giảm dần theo thời gian tạo (mới nhất lên đầu)
+    const latestMenu = await WeeklyMenu.findOne()
+      .sort({ createdAt: -1 }) // Sắp xếp để lấy cái mới nhất
+      .populate("items.dish"); // *** Dùng populate để lấy thông tin chi tiết món ăn ***
+
+    // 2. Kiểm tra xem có thực đơn nào tồn tại không.
+    if (!latestMenu) {
+      return res.status(404).json({
+        message: "No weekly menu found",
+      });
+    }
+
+    // 3. Gửi response về client
+    res.status(200).json(latestMenu);
+  } catch (err) {
+    // Xử lý lỗi
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+// @route   GET /api/weekly-menus/:id
+// @desc    Get a single weekly menu by ID
+// @access  Public
+router.get("/:id", async (req, res) => {
+  try {
+    // Lấy ID thực đơn từ URL parameters
+    const menuId = req.params.id;
+
+    // Tìm thực đơn theo ID và dùng populate.
+    // *** Dùng populate để lấy thông tin chi tiết món ăn ***
+    const weeklyMenu = await WeeklyMenu.findById(menuId).populate("items.dish");
+
+    // Kiểm tra xem có tìm thấy thực đơn không.
+    if (!weeklyMenu) {
+      return res.status(404).json({ msg: "Weekly menu not found" });
+    }
+
+    // 4. Gửi response về client
+    res.status(200).json(weeklyMenu);
+  } catch (err) {
+    // Xử lý lỗi
+    console.error(err.message);
+
+    // Nếu ID gửi lên không đúng định dạng ObjectId
+    if (err.kind === "ObjectId") {
+      return res.status(400).json({ msg: "Invalid Weekly Menu ID format" });
+    }
+
+    // Lỗi chung
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router; // Export router
