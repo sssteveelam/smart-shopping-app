@@ -99,7 +99,7 @@ router.put("/:id", async (req, res) => {
   try {
     // Lấy ID và dữ liệu cập nhật từ request
     const dishId = req.params.id;
-    const { name, ingredients } = req.body; // Lấy dữ liệu mới từ body
+    const { name, ingredients } = req.body; 
     // Kiểm tra dữ liệu cập nhật cơ bản.
     if (
       !name ||
@@ -152,16 +152,14 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const dishId = req.params.id;
-    const deletedDish = await Dish.findByIdAndDelete(dishId); // Hoặc findByIdAndRemove()
-    // 3. Kiểm tra xem có tìm thấy món ăn để xóa không
+    const deletedDish = await Dish.findByIdAndDelete(dishId);
+    //  Kiểm tra xem có tìm thấy món ăn để xóa không
     if (!deletedDish) {
       return res.status(404).json({ msg: "Dish not found" });
     }
 
     // 4. Gửi response về client
-    // Có thể gửi lại object món ăn đã xóa hoặc chỉ gửi thông báo thành công
     res.status(200).json({ msg: "Dish removed", deletedDish: deletedDish });
-    // Hoặc đơn giản hơn: res.status(200).json({ msg: 'Dish removed' });
   } catch (error) {
     // Xử lý lỗi
     console.error(err.message);
