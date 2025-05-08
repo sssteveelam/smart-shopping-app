@@ -40,7 +40,7 @@ export default function DishForm({ onDishAdded }) {
 
     try {
       setSubmitting(true); // Bắt đầu gửi, đặt submitting là true
-      setError(null); //  Reset lỗi
+      setError(null); // 	Reset lỗi
 
       // *** Gọi API POST /api/dishes để thêm món ăn mới ***
       const response = await axios.post("http://localhost:5000/api/dishes", {
@@ -54,6 +54,7 @@ export default function DishForm({ onDishAdded }) {
       setIngredients("");
       setError(null); // Reset lỗi nếu thành công
 
+      // Gọi hàm onDishAdded (nếu có) để thông báo cho component cha
       if (onDishAdded) {
         onDishAdded();
       }
@@ -65,25 +66,43 @@ export default function DishForm({ onDishAdded }) {
       setSubmitting(false); // Kết thúc gửi
     }
   };
-  return (
-    <div>
-      <h2>Thêm món ăn mới</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Hiển thị lỗi nếu có */}
-        {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <div>
-          <label htmlFor="name">Tên món ăn:</label>
+  return (
+    // Thẻ div bao ngoài, thêm padding, bo góc, và đổ bóng nhẹ
+    <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4">
+      {/* Tiêu đề, căn giữa và cỡ chữ lớn hơn */}
+      <h2 className="text-2xl font-bold text-center text-gray-800">
+        Thêm món ăn mới
+      </h2>
+
+      {/* Form chính */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Hiển thị lỗi nếu có, dùng màu đỏ và margin bottom */}
+        {error && <p className="text-red-500 text-sm italic">{error}</p>}
+
+        {/* Form group cho Tên món ăn */}
+        <div className="flex flex-col">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-1">
+            Tên món ăn:
+          </label>
           <input
             type="text"
             id="name"
             value={name}
             onChange={handleNameChange}
             disabled={submitting} // Vô hiệu hóa input khi đang gửi
+            // Thêm border, padding, bo góc cho input, và style khi focus
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
-        <div>
-          <label htmlFor="ingredients">
+
+        {/* Form group cho Nguyên liệu */}
+        <div className="flex flex-col">
+          <label
+            htmlFor="ingredients"
+            className="block text-sm font-medium text-gray-700 mb-1">
             Nguyên liệu (cách nhau bằng dấu phẩy):
           </label>
           <input
@@ -92,11 +111,18 @@ export default function DishForm({ onDishAdded }) {
             value={ingredients}
             onChange={handleIngredientsChange}
             disabled={submitting} // Vô hiệu hóa input khi đang gửi
+            // Thêm border, padding, bo góc cho input, và style khi focus
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
-        <button type="submit" disabled={submitting}>
-          {" "}
-          {/* Vô hiệu hóa button khi đang gửi */}
+
+        {/* Nút submit */}
+        <button
+          type="submit"
+          disabled={submitting} // Vô hiệu hóa button khi đang gửi
+          // Thêm style cho button: màu nền, text, padding, bo góc, hover, focus, disabled
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          {/* Hiển thị text theo trạng thái submitting */}
           {submitting ? "Đang thêm..." : "Thêm món ăn"}
         </button>
       </form>
