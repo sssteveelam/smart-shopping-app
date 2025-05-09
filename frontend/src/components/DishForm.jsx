@@ -5,82 +5,70 @@ import React, { useState } from "react";
 export default function DishForm({ onDishAdded }) {
   const [name, setName] = useState("");
   const [ingredients, setIngredients] = useState("");
-  const [submitting, setSubmitting] = useState(false); // State để báo hiệu đang gửi dữ liệu
-  const [error, setError] = useState(null); // State để lưu lỗi khi gửi form
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Hàm xử lý khi người dùng nhập vào input Tên món ăn
   const handleNameChange = (e) => {
     setName(e.target.value);
   };
-  // Hàm xử lý khi người dùng nhập vào input Nguyên liệu
   const handleIngredientsChange = (e) => {
     setIngredients(e.target.value);
   };
-  // Hàm xử lý khi người dùng nhấn nút Thêm món ăn
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Kiểm tra dữ liệu trước khi gửi.
     if (!name || !ingredients) {
-      setError("Please fill in both name and ingredients.");
+      setError("Vui lòng điền đầy đủ cả tên món ăn và nguyên liệu.");
       return;
     }
 
-    // Chuyển chuỗi nguyên liệu thành mảng (tách theo dấu phẩy và loại bỏ khoảng trắng thừa)
     const ingredientsArray = ingredients
       .split(",")
       .map((item) => item.trim())
       .filter((item) => item !== "");
 
-    // Kiểm tra mảng nguyên liệu có rỗng sau khi xử lý không
     if (ingredientsArray.length === 0) {
-      setError("Please provide at least one ingredient.");
+      setError("Vui lòng cung cấp ít nhất một nguyên liệu.");
       return;
     }
 
     try {
-      setSubmitting(true); // Bắt đầu gửi, đặt submitting là true
-      setError(null); // 	Reset lỗi
+      setSubmitting(true);
+      setError(null); //
 
-      // *** Gọi API POST /api/dishes để thêm món ăn mới ***
       const response = await axios.post("http://localhost:5000/api/dishes", {
         name, // name: name
-        ingredients: ingredientsArray, // Sử dụng mảng nguyên liệu đã xử lý
+        ingredients: ingredientsArray,
       });
       console.log("New dish added:", response.data);
 
-      // Reset form sau khi thêm thành công
       setName("");
       setIngredients("");
-      setError(null); // Reset lỗi nếu thành công
+      setError(null);
 
-      // Gọi hàm onDishAdded (nếu có) để thông báo cho component cha
       if (onDishAdded) {
         onDishAdded();
       }
     } catch (err) {
       console.error("Error adding dish:", err.response?.data || err.message);
-      // Hiển thị thông báo lỗi từ backend nếu có (err.response.data) hoặc lỗi chung
-      setError(err.response?.data?.msg || "Failed to add dish.");
+      setError(err.response?.data?.msg || "Có lỗi xảy ra khi thêm món ăn.");
     } finally {
-      setSubmitting(false); // Kết thúc gửi
+      setSubmitting(false);
     }
   };
 
   return (
-    // Thẻ div bao ngoài, thêm padding, bo góc, và đổ bóng nhẹ
-    <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4">
-      {/* Tiêu đề, căn giữa và cỡ chữ lớn hơn */}
+    <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg space-y-6">
       <h2 className="text-2xl font-bold text-center text-gray-800">
         Thêm món ăn mới
       </h2>
-
-      {/* Form chính */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Hiển thị lỗi nếu có, dùng màu đỏ và margin bottom */}
-        {error && <p className="text-red-500 text-sm italic">{error}</p>}
+        {error && (
+          <p className="text-red-600 text-sm font-semibold italic mb-4">
+            {error}
+          </p> // text-red-600, font-semibold, mb-4
+        )}
 
-        {/* Form group cho Tên món ăn */}
         <div className="flex flex-col">
           <label
             htmlFor="name"
@@ -93,12 +81,13 @@ export default function DishForm({ onDishAdded }) {
             value={name}
             onChange={handleNameChange}
             disabled={submitting} // Vô hiệu hóa input khi đang gửi
-            // Thêm border, padding, bo góc cho input, và style khi focus
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
+                       focus:outline-none focus:ring-indigo-500 focus:border-indigo-500
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100" // px-4 py-2, placeholder, disabled bg
+            placeholder="Ví dụ: Phở bò" // Thêm placeholder
           />
         </div>
 
-        {/* Form group cho Nguyên liệu */}
         <div className="flex flex-col">
           <label
             htmlFor="ingredients"
@@ -111,8 +100,10 @@ export default function DishForm({ onDishAdded }) {
             value={ingredients}
             onChange={handleIngredientsChange}
             disabled={submitting} // Vô hiệu hóa input khi đang gửi
-            // Thêm border, padding, bo góc cho input, và style khi focus
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
+                       focus:outline-none focus:ring-indigo-500 focus:border-indigo-500
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100" // px-4 py-2, placeholder, disabled bg
+            placeholder="Ví dụ: Thịt bò, bánh phở, hành lá" // Thêm placeholder
           />
         </div>
 
@@ -120,9 +111,10 @@ export default function DishForm({ onDishAdded }) {
         <button
           type="submit"
           disabled={submitting} // Vô hiệu hóa button khi đang gửi
-          // Thêm style cho button: màu nền, text, padding, bo góc, hover, focus, disabled
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
-          {/* Hiển thị text theo trạng thái submitting */}
+          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600
+                       hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-indigo-400 transition duration-200 ease-in-out" // py-2.5 text-base, disabled bg, transition
+        >
           {submitting ? "Đang thêm..." : "Thêm món ăn"}
         </button>
       </form>

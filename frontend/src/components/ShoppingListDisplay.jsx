@@ -1,35 +1,37 @@
 // File: frontend/src/components/ShoppingListDisplay.jsx
 import React from "react";
 
-// Component nhận danh sách đi chợ và trạng thái tải/lỗi qua props
 function ShoppingListDisplay({ shoppingList, loading, error }) {
   return (
-    <div className="my-8 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Danh sách đi chợ</h2>
-
-      {/* Hiển thị trạng thái loading hoặc lỗi */}
-      {loading && <p className="text-center">Đang tạo danh sách đi chợ...</p>}
-      {error && <p className="text-center text-red-500">Lỗi: {error}</p>}
-
-      {/* Chỉ hiển thị khi không loading và không lỗi */}
+    <div className="mt-8 p-6 max-w-2xl mx-auto bg-white rounded-xl shadow-lg">
+      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+        Danh sách đi chợ
+      </h2>
+      {loading && (
+        <p className="text-center text-gray-600 italic">
+          Đang tạo danh sách đi chợ...
+        </p>
+      )}
+      {error && (
+        <p className="text-center text-red-600 font-semibold">Lỗi: {error}</p>
+      )}
       {!loading &&
         !error &&
         (shoppingList && shoppingList.length > 0 ? (
           <div>
-            <p className="font-semibold mb-2">Nguyên liệu cần mua:</p>
-            <ul className="list-disc list-inside">
-              {" "}
-              {/* Thêm class Tailwind cho list */}
+            <p className="font-semibold mb-3 text-gray-700">
+              Nguyên liệu cần mua:
+            </p>{" "}
+            <ul className="list-disc list-inside space-y-2">
               {shoppingList.map((item, index) => (
-                <li key={index} className="mb-1 text-gray-800">
+                <li key={index} className="text-gray-800 leading-relaxed">
                   {item}
-                </li> // Hiển thị từng nguyên liệu
+                </li>
               ))}
             </ul>
           </div>
         ) : (
-          // Hiển thị thông báo nếu danh sách rỗng hoặc chưa có menu
-          <p className="text-center text-gray-600">
+          <p className="text-center text-gray-500 italic mt-4">
             Danh sách đi chợ sẽ hiện ra ở đây sau khi có thực đơn.
           </p>
         ))}

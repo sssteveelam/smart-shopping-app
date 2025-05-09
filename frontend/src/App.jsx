@@ -12,13 +12,13 @@ import ShoppingListDisplay from "./components/ShoppingListDisplay";
 function App() {
   // State để lưu danh sách món ăn
   const [dishes, setDishes] = useState([]);
-  const [loading, setLoading] = useState(true); // State để báo hiệu đang tải dữ liệu
-  const [error, setError] = useState(null); // State để lưu lỗi nếu có
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // *** State cho phần Weekly Menu và Shopping List ***
   const [latestWeeklyMenu, setLatestWeeklyMenu] = useState(null);
-  const [loadingMenu, setLoadingMenu] = useState(true); // State loading cho menu
-  const [errorMenu, setErrorMenu] = useState(null); // State lỗi cho menu
+  const [loadingMenu, setLoadingMenu] = useState(true);
+  const [errorMenu, setErrorMenu] = useState(null);
 
   const [shoppingList, setShoppingList] = useState([]);
   const [loadingShoppingList, setLoadingShoppingList] = useState(false); // State loading cho shopping list
@@ -29,12 +29,12 @@ function App() {
     try {
       setLoading(true);
       const response = await axios.get("http://localhost:5000/api/dishes");
-      setDishes(response.data); // Cập nhật state dishes với dữ liệu nhận được
+      setDishes(response.data);
       setError(null);
     } catch (err) {
       console.error("Error fetching dishes:", err);
-      setError("Failed to fetch dishes."); // Lưu thông báo lỗi
-      setDishes([]); // Xóa danh sách món ăn nếu fetch lỗi
+      setError("Failed to fetch dishes.");
+      setDishes([]);
     } finally {
       setLoading(false);
     }
@@ -53,14 +53,13 @@ function App() {
       setLatestWeeklyMenu(response.data);
     } catch (err) {
       console.error("Error fetching latest weekly menu:", err);
-      // Backend trả về 404 nếu chưa có menu nào, không phải lỗi thật sự
       if (err.response && err.response.status === 404) {
-        setLatestWeeklyMenu(null); // Chưa có menu nào
-        setErrorMenu(null); // Không coi là lỗi
+        setLatestWeeklyMenu(null);
+        setErrorMenu(null);
       } else {
-        setErrorMenu("Failed to fetch latest weekly menu."); // Lỗi khác
+        setErrorMenu("Failed to fetch latest weekly menu.");
       }
-      setLatestWeeklyMenu(null); // Đảm bảo state là null nếu có lỗi hoặc 404
+      setLatestWeeklyMenu(null);
     } finally {
       setLoadingMenu(false);
     }
@@ -69,7 +68,7 @@ function App() {
   // *** Hàm fetch danh sách đi chợ ***
   const fetchShoppingList = async (menuId) => {
     if (!menuId) {
-      setShoppingList([]); // Nếu không có ID menu thì danh sách rỗng
+      setShoppingList([]);
       setLoadingShoppingList(false);
       setErrorShoppingList(null);
       return;
@@ -100,39 +99,29 @@ function App() {
   // *** useEffect để fetch thực đơn gần nhất khi App mount ***
   useEffect(() => {
     fetchLatestWeeklyMenu();
-  }, []); // Chạy MỘT LẦN khi App mount
+  }, []);
 
   // *** useEffect để fetch danh sách đi chợ khi latestWeeklyMenu thay đổi ***
   useEffect(() => {
     if (latestWeeklyMenu && latestWeeklyMenu._id) {
-      // Nếu có thực đơn và có ID, thì fetch danh sách đi chợ
       fetchShoppingList(latestWeeklyMenu._id);
     } else {
-      // Nếu không có thực đơn, reset danh sách đi chợ
       setShoppingList([]);
     }
   }, [latestWeeklyMenu]);
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {" "}
-      {/* Thêm class Tailwind cho container chính */}
       <h1 className="text-blue-500 text-center text-3xl font-bold my-4">
         Trợ lý Đi chợ Thông minh
       </h1>
-      {/* Hiển thị Component form thêm món ăn */}
-      <DishForm onDishAdded={fetchDishes} /> {/* Vẫn truyền hàm fetchDishes */}
-      {/* Hiển thị Component form lên lịch thực đơn */}
-      {/* onMenuSaved={fetchLatestWeeklyMenu} (sẽ thêm prop này sau) */}
-      {/* Truyền danh sách món ăn xuống form để chọn */}
+      <DishForm onDishAdded={fetchDishes} />
       <WeeklyMenuForm dishes={dishes} onMenuSaved={fetchLatestWeeklyMenu} />
-      {/* Hiển thị Component thực đơn đã lưu */}
       <WeeklyMenuDisplay
         latestWeeklyMenu={latestWeeklyMenu}
         loading={loadingMenu}
         error={errorMenu}
       />
-      {/* Hiển thị Component danh sách đi chợ */}
       <ShoppingListDisplay
         shoppingList={shoppingList}
         loading={loadingShoppingList}

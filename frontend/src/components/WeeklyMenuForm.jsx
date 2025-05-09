@@ -2,49 +2,36 @@
 import React, { useState, useEffect } from "react"; // Thêm useEffect
 import axios from "axios";
 
-// Component nhận danh sách món ăn (để hiển thị lựa chọn) và hàm lưu menu thành công qua props
 function WeeklyMenuForm({ dishes, onMenuSaved }) {
-  // Nhận props dishes và onMenuSaved
   const [menuName, setMenuName] = useState("");
-  // State để lưu lựa chọn món ăn cho từng ngày. Dùng object { day: dishId }
-  // Khởi tạo với các ngày trong tuần và giá trị ban đầu là rỗng (chưa chọn)
   const [weeklySelections, setWeeklySelections] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null); // State để hiển thị thông báo thành công
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const daysOfWeek = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
+    "Thứ Hai",
+    "Thứ Ba",
+    "Thứ Tư",
+    "Thứ Năm",
+    "Thứ Sáu",
+    "Thứ Bảy",
+    "Chủ Nhật",
   ];
 
-  // Khởi tạo state weeklySelections khi component mount hoặc danh sách món ăn thay đổi
-  // để đảm bảo các ngày trong tuần đều có trong state
   useEffect(() => {
     const initialSelections = {};
     daysOfWeek.forEach((day) => {
-      // Nếu ngày đã có trong state cũ (khi update form) thì giữ lại, không thì set rỗng
       initialSelections[day] = weeklySelections[day] || "";
     });
 
-    // :-------- | :-------- | :------------------------------------------------------ | :--------------------------------------------------------- | :------------------------------------------- |
-    // | 1         | 'Monday' | weeklySelections['Monday'] là 'dish_id_abc'       | 'dish_id_abc' || "" => 'dish_id_abc'                   | { Monday: 'dish_id_abc' }                  |
-    // | 2         | 'Tuesday'| weeklySelections['Tuesday'] là '' (chuỗi rỗng)      | '' || ""          => ""                                 | { Monday: 'dish_id_abc', Tuesday: "" }     |
-    // | 3         | 'Wednesday'| weeklySelections['Wednesday'] là undefined        | undefined || ""  => ""                                 | { Monday: 'dish_id_abc', Tuesday: "", Wednesday: "" } |
-    // { Monday: "", Tuesday: "", Wednesday: "" }
     setWeeklySelections(initialSelections);
   }, [daysOfWeek]);
 
-  // Hàm xử lý khi người dùng chọn món ăn cho một ngày
   const handleDishSelect = (day, dishId) => {
     setWeeklySelections({
-      ...weeklySelections, // Giữ lại các lựa chọn của các ngày khác
-      [day]: dishId, // Cập nhật lựa chọn cho ngày hiện tại
+      ...weeklySelections,
+      [day]: dishId,
     });
   };
 
@@ -52,21 +39,19 @@ function WeeklyMenuForm({ dishes, onMenuSaved }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setError(null); // Reset lỗi
-    setSuccessMessage(null); // Reset thông báo thành công
+    setError(null);
+    setSuccessMessage(null);
 
     // Lọc ra các mục (ngày + món ăn) mà người dùng đã chọn món
     const selectedItems = daysOfWeek
-      .map((day) => ({ day, dish: weeklySelections[day] })) // Tạo object { day, dishId } cho mỗi ngày
-      .filter((item) => item.dish); // Lọc bỏ những ngày chưa chọn món (dishId rỗng)
+      .map((day) => ({ day, dish: weeklySelections[day] }))
+      .filter((item) => item.dish);
 
-    // Kiểm tra xem người dùng đã chọn ít nhất một món cho một ngày nào đó chưa
     if (selectedItems.length === 0) {
-      setError("Please select at least one dish for the week.");
+      setError("Vui lòng chọn ít nhất một món ăn cho tuần.");
       return;
     }
 
-    // Tạo object dữ liệu thực đơn để gửi lên backend
     const menuData = {
       name: menuName || undefined, // Gửi tên nếu có, không thì gửi undefined (backend sẽ dùng default)
       items: selectedItems,
@@ -81,13 +66,16 @@ function WeeklyMenuForm({ dishes, onMenuSaved }) {
 
       console.log("New weekly menu saved:", response.data);
 
-      // Reset form và state sau khi lưu thành công
       setMenuName("");
-      setWeeklySelections({}); // Reset lựa chọn các ngày
+      const resetSelections = {};
+      daysOfWeek.forEach((day) => {
+        resetSelections[day] = "";
+      });
+      setWeeklySelections(resetSelections);
+
       setError(null);
       setSuccessMessage("Thực đơn đã được lưu thành công!"); // Hiển thị thông báo thành công
 
-      // *** Gọi hàm onMenuSaved (fetchLatestWeeklyMenu từ App) để cập nhật hiển thị thực đơn mới nhất ***
       if (onMenuSaved) {
         onMenuSaved();
       }
@@ -96,8 +84,7 @@ function WeeklyMenuForm({ dishes, onMenuSaved }) {
         "Error saving weekly menu:",
         err.response?.data || err.message
       );
-      // Hiển thị thông báo lỗi từ backend (ví dụ: lỗi validation ID món ăn không tồn tại) hoặc lỗi chung
-      setError(err.response?.data?.msg || "Failed to save weekly menu.");
+      setError(err.response?.data?.msg || "Có lỗi xảy ra khi lưu thực đơn.");
       setSuccessMessage(null); // Đảm bảo không hiển thị thông báo thành công nếu có lỗi
     } finally {
       setSubmitting(false); // Kết thúc gửi
@@ -105,19 +92,27 @@ function WeeklyMenuForm({ dishes, onMenuSaved }) {
   };
 
   return (
-    <div className="my-8 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Lên lịch Thực đơn Tuần</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Hiển thị thông báo lỗi hoặc thành công */}
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        {successMessage && (
-          <p className="text-green-600 text-center mb-4">{successMessage}</p>
+    <div className="mt-8 p-6 max-w-xl mx-auto bg-white rounded-xl shadow-lg">
+      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+        Lên lịch Thực đơn Tuần
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {" "}
+        {error && (
+          <p className="text-red-600 font-semibold text-center mb-4">{error}</p>
         )}
-
-        <div className="mb-4">
+        {successMessage && (
+          <p className="text-green-600 font-semibold text-center mb-4">
+            {successMessage}
+          </p>
+        )}
+        <div className="space-y-2">
+          {" "}
           <label
             htmlFor="menuName"
-            className="block text-gray-700 text-sm font-bold mb-2">
+            className="block text-gray-700 text-sm font-medium">
+            {" "}
+            {/* font-medium */}
             Tên Thực đơn (Tùy chọn):
           </label>
           <input
@@ -126,53 +121,51 @@ function WeeklyMenuForm({ dishes, onMenuSaved }) {
             value={menuName}
             onChange={(e) => setMenuName(e.target.value)}
             disabled={submitting} // Vô hiệu hóa khi đang gửi
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
+                       focus:outline-none focus:ring-indigo-500 focus:border-indigo-500
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
+            placeholder="Ví dụ: Thực đơn Mùa Hè"
+          />{" "}
         </div>
-
-        {/* Phần chọn món cho từng ngày */}
-        <div className="mb-4">
-          <p className="block text-gray-700 text-sm font-bold mb-2">
+        <div className="space-y-3">
+          <p className="block text-gray-700 font-semibold mb-2">
             Chọn món cho từng ngày:
           </p>
-          {/* Map qua danh sách các ngày trong tuần để tạo ô chọn món */}
           {daysOfWeek.map((day) => (
-            <div key={day} className="flex items-center mb-2">
-              {" "}
-              {/* Dùng flex để các phần tử cùng hàng */}
-              <label className="mr-2 w-24 font-medium">{day}:</label>{" "}
-              {/* Đặt chiều rộng cố định cho label ngày */}
-              {/* Dropdown chọn món ăn */}
+            <div key={day} className="flex items-center space-x-4">
+              <label className="flex-shrink-0 w-24 font-medium text-gray-800">
+                {day}:
+              </label>{" "}
               <select
                 value={weeklySelections[day] || ""} // Giá trị được chọn lấy từ state
                 onChange={(e) => handleDishSelect(day, e.target.value)} // Khi giá trị thay đổi, gọi hàm handleDishSelect
                 disabled={submitting} // Vô hiệu hóa khi đang gửi
-                className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                <option value="">-- Chọn món --</option>
-                {/* Option mặc định */}{" "}
-                {/* Map qua danh sách món ăn nhận từ props để tạo các option */}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 appearance-none" /* appearance-none để tùy chỉnh mũi tên nếu cần */
+              >
+                <option value="">-- Chọn món --</option> {/* Option mặc định */}
                 {dishes &&
                   dishes.map((dish) => (
                     <option key={dish._id} value={dish._id}>
-                      {" "}
-                      {/* Value là ID của món ăn */}
-                      {dish.name} {/* Text hiển thị là tên món ăn */}
+                      {dish.name}
                     </option>
                   ))}
               </select>
             </div>
           ))}
         </div>
-
         <button
           type="submit"
-          disabled={submitting || dishes.length === 0} // Vô hiệu hóa khi đang gửi hoặc chưa có món ăn nào để chọn
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed">
+          disabled={submitting || dishes.length === 0} // Vô hiệu hóa khi đang gửi hoặc chưa có món ăn
+          // Style button đồng bộ
+          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600
+                       hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-indigo-400 transition duration-200 ease-in-out">
           {submitting ? "Đang lưu..." : "Lưu Thực đơn"}
         </button>
-
         {dishes.length === 0 && (
-          <p className="text-red-500 text-sm mt-2">
+          <p className="text-red-600 text-sm italic mt-4 text-center">
             Hãy thêm món ăn vào database trước khi lên lịch thực đơn.
           </p>
         )}
